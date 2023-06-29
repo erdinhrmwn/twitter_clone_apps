@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:twitter_clone_apps/common/common.dart';
+import 'package:twitter_clone_apps/core/theme/theme.dart';
+import 'package:twitter_clone_apps/features/explore/view/explore_view.dart';
 import 'package:twitter_clone_apps/features/tweet/view/create_tweet_view.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/tweet_list.dart';
 
@@ -23,12 +25,12 @@ class HomeView extends HookWidget {
     }, [currentIndex.value]);
 
     return Scaffold(
-      appBar: const MyAppBar(),
+      appBar: currentIndex.value == 0 ? const MyAppBar() : null,
       body: IndexedStack(
         index: currentIndex.value,
         children: const [
           TweetList(),
-          Center(child: Text('Search')),
+          ExploreView(),
           Center(child: Text('Notifications')),
         ],
       ),
@@ -44,6 +46,7 @@ class HomeView extends HookWidget {
         ),
       ),
       bottomNavigationBar: CupertinoTabBar(
+        backgroundColor: Palette.backgroundColor,
         currentIndex: currentIndex.value,
         onTap: (value) => currentIndex.value = value,
         items: [
@@ -53,7 +56,6 @@ class HomeView extends HookWidget {
               style: currentIndex.value == 0 ? HeroIconStyle.mini : HeroIconStyle.outline,
               size: 28,
             ),
-            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: HeroIcon(
@@ -61,7 +63,6 @@ class HomeView extends HookWidget {
               style: currentIndex.value == 1 ? HeroIconStyle.mini : HeroIconStyle.outline,
               size: 28,
             ),
-            label: 'Search',
           ),
           BottomNavigationBarItem(
             icon: HeroIcon(
@@ -69,7 +70,6 @@ class HomeView extends HookWidget {
               style: currentIndex.value == 2 ? HeroIconStyle.mini : HeroIconStyle.outline,
               size: 28,
             ),
-            label: 'Notifications',
           ),
         ],
       ),

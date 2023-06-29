@@ -19,6 +19,7 @@ UserAPI userApi(UserApiRef ref) {
 abstract class IUserAPI {
   FutureEitherVoid saveUserData(UserModel user);
   Future<Document> getUserData(String userId);
+  Future<DocumentList> searchUserByName(String name);
 }
 
 class UserAPI implements IUserAPI {
@@ -57,6 +58,23 @@ class UserAPI implements IUserAPI {
       );
 
       return response;
+    } on AppwriteException catch (error, stackTrace) {
+      throw Failure(error.message.toString(), stackTrace);
+    } catch (error, stackTrace) {
+      throw Failure(error.toString(), stackTrace);
+    }
+  }
+
+  @override
+  Future<DocumentList> searchUserByName(String name) {
+    try {
+      return _database.listDocuments(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        queries: [
+          Query.search('name', name),
+        ],
+      );
     } on AppwriteException catch (error, stackTrace) {
       throw Failure(error.message.toString(), stackTrace);
     } catch (error, stackTrace) {

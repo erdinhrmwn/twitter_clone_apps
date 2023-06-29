@@ -5,25 +5,27 @@ class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,
     required this.profilePic,
+    this.radius = 21,
   });
 
   final String profilePic;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: profilePic.isEmpty
-          ? const CircleAvatar(
-              radius: 21,
-              child: HeroIcon(
+          ? CircleAvatar(
+              radius: radius,
+              child: const HeroIcon(
                 HeroIcons.user,
                 size: 24,
                 style: HeroIconStyle.solid,
               ),
             )
           : CircleAvatar(
-              radius: 21,
+              radius: radius,
               backgroundImage: NetworkImage(profilePic),
             ),
     );
