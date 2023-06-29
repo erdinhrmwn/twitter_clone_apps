@@ -39,6 +39,7 @@ dependencies:
   smooth_page_indicator: ^1.0.1
   carousel_slider: ^4.2.1
   any_link_preview: ^3.0.0
+  like_button: ^2.0.5
 
   # fonts
   google_fonts: ^4.0.4

@@ -26,6 +26,7 @@ class TweetIconButton extends StatelessWidget {
           ),
           if (text != null)
             Container(
+              padding: const EdgeInsets.only(left: 3),
               margin: const EdgeInsets.all(6),
               child: Text(
                 text.toString(),

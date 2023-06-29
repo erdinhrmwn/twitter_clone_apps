@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:fpdart/fpdart.dart';
@@ -56,6 +55,47 @@ class TweetAPI implements ITweetAPI {
       final response = await _database.listDocuments(
         databaseId: databaseId,
         collectionId: collectionId,
+        queries: [
+          Query.equal('repliedTo', ''),
+          Query.orderDesc('tweetedAt'),
+        ],
+      );
+
+      print(response.documents.length);
+
+      final tweets = response.documents.map((e) => Tweet.fromJson(e.data)).toList();
+
+      return right(tweets);
+    } on AppwriteException catch (error, stackTrace) {
+      print(error);
+      return left(Failure(error.message.toString(), stackTrace));
+    } catch (error, stackTrace) {
+      print(error);
+      return left(Failure(error.toString(), stackTrace));
+    }
+  }
+
+  @override
+  Future<Tweet> getTweetById({required String tweetId}) async {
+    final result = await _database.getDocument(
+      databaseId: databaseId,
+      collectionId: collectionId,
+      documentId: tweetId,
+    );
+
+    return Tweet.fromJson(result.data);
+  }
+
+  @override
+  FutureEither<List<Tweet>> getReplyTweets({required String tweetId}) async {
+    try {
+      final response = await _database.listDocuments(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        queries: [
+          Query.equal('repliedTo', tweetId),
+          Query.orderDesc('tweetedAt'),
+        ],
       );
 
       final tweets = response.documents.map((e) => Tweet.fromJson(e.data)).toList();
@@ -74,10 +114,54 @@ class TweetAPI implements ITweetAPI {
       'databases.$databaseId.collections.$collectionId.documents',
     ]).stream;
   }
+
+  @override
+  FutureEither<Document> likeTweet({required Tweet tweet}) async {
+    try {
+      final result = await _database.updateDocument(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: tweet.id,
+        data: {
+          'likes': tweet.likes,
+        },
+      );
+
+      return right(result);
+    } on AppwriteException catch (error, stackTrace) {
+      return left(Failure(error.message.toString(), stackTrace));
+    } catch (error, stackTrace) {
+      return left(Failure(error.toString(), stackTrace));
+    }
+  }
+
+  @override
+  FutureEither<Document> updateShareCount({required Tweet tweet}) async {
+    try {
+      final result = await _database.updateDocument(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: tweet.id,
+        data: {
+          'shareCount': tweet.shareCount,
+        },
+      );
+
+      return right(result);
+    } on AppwriteException catch (error, stackTrace) {
+      return left(Failure(error.message.toString(), stackTrace));
+    } catch (error, stackTrace) {
+      return left(Failure(error.toString(), stackTrace));
+    }
+  }
 }
 
 abstract class ITweetAPI {
   FutureEither<Document> createTweet({required Tweet tweet});
   FutureEither<List<Tweet>> getTweets();
+  Future<Tweet> getTweetById({required String tweetId});
+  FutureEither<List<Tweet>> getReplyTweets({required String tweetId});
   Stream<RealtimeMessage> getLatestTweet();
+  FutureEither<Document> likeTweet({required Tweet tweet});
+  FutureEither<Document> updateShareCount({required Tweet tweet});
 }
