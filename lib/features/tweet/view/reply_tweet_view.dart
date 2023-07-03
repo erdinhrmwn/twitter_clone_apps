@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:twitter_clone_apps/common/common.dart';
-import 'package:twitter_clone_apps/core/providers/media_manager_provider.dart';
 import 'package:twitter_clone_apps/core/utils/snackbar.dart';
 import 'package:twitter_clone_apps/features/tweet/controller/tweet_controller.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/reply_tweet_list.dart';
@@ -22,15 +22,23 @@ class ReplyTweetScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tweetController = ref.read(tweetControllerProvider.notifier);
-    final mediaManager = ref.watch(mediaManagerProvider);
+    final tweetImages = useState<List<XFile>>([]);
+    final isLoading = useState(false);
 
     final textController = useTextEditingController();
 
     final submitReply = useCallback(() async {
-      final result = await tweetController.createTweet(text: textController.text, images: mediaManager, repliedTo: tweet.id);
+      isLoading.value = true;
+
+      final result = await tweetController.createTweet(
+        text: textController.text,
+        images: tweetImages.value,
+        repliedTo: tweet.id,
+        repliedToUser: tweet.uid,
+      );
 
       textController.clear();
-      mediaManager.clear();
+      tweetImages.value.clear();
 
       result.fold(
         (failure) => showSnackbar(context, failure.message),
@@ -38,7 +46,7 @@ class ReplyTweetScreen extends HookConsumerWidget {
           // Navigator.of(context).pop(tweet);
         },
       );
-    }, [textController.text, mediaManager]);
+    }, [textController.text, tweetImages.value, isLoading.value]);
 
     return Scaffold(
       appBar: const MyAppBar(),
@@ -52,7 +60,7 @@ class ReplyTweetScreen extends HookConsumerWidget {
         child: TextField(
           controller: textController,
           onSubmitted: (value) {
-            submitReply();
+            if (!isLoading.value) submitReply();
           },
           decoration: InputDecoration(
             hintText: 'Tweet your reply',
@@ -60,7 +68,7 @@ class ReplyTweetScreen extends HookConsumerWidget {
             suffixIcon: IconButton(
               icon: const Icon(Icons.send),
               onPressed: () {
-                submitReply();
+                if (!isLoading.value) submitReply();
               },
             ),
           ),

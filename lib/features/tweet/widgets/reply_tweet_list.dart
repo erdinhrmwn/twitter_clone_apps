@@ -18,7 +18,7 @@ class ReplyTweetList extends HookConsumerWidget {
     const collectionId = AppwriteConstants.tweetsCollectionId;
 
     final tweetsProvider = ref.watch(getReplyTweetsProvider(tweetId));
-    final streamLatestTweet = ref.watch(getLatestTweetsProvider);
+    final streamLatestTweet = ref.watch(streamLatestTweetProvider);
 
     return tweetsProvider.when(
       data: (tweets) => streamLatestTweet.when(

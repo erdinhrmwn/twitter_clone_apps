@@ -20,6 +20,8 @@ class Tweet with _$Tweet {
     @Default(0) int shareCount,
     @Default('') String retweetedBy,
     @Default('') String repliedTo,
+    @JsonKey(name: "\$createdAt", includeToJson: false) DateTime? createdAt,
+    @JsonKey(name: "\$updatedAt", includeToJson: false) DateTime? updatedAt,
   }) = _Tweet;
 
   factory Tweet.fromJson(Map<String, dynamic> json) => _$TweetFromJson(json);

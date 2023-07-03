@@ -5,6 +5,8 @@ import 'package:heroicons/heroicons.dart';
 import 'package:twitter_clone_apps/common/common.dart';
 import 'package:twitter_clone_apps/core/theme/theme.dart';
 import 'package:twitter_clone_apps/features/explore/view/explore_view.dart';
+import 'package:twitter_clone_apps/features/home/widgets/side_drawer.dart';
+import 'package:twitter_clone_apps/features/notification/view/notification_view.dart';
 import 'package:twitter_clone_apps/features/tweet/view/create_tweet_view.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/tweet_list.dart';
 
@@ -31,7 +33,7 @@ class HomeView extends HookWidget {
         children: const [
           TweetList(),
           ExploreView(),
-          Center(child: Text('Notifications')),
+          NotificationView(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -45,6 +47,7 @@ class HomeView extends HookWidget {
           style: HeroIconStyle.solid,
         ),
       ),
+      drawer: const SideDrawer(),
       bottomNavigationBar: CupertinoTabBar(
         backgroundColor: Palette.backgroundColor,
         currentIndex: currentIndex.value,

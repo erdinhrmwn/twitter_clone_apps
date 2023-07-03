@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:twitter_clone_apps/apis/storage_api.dart';
 
-class UserAvatar extends StatelessWidget {
+class UserAvatar extends HookConsumerWidget {
   const UserAvatar({
     super.key,
     required this.profilePic,
@@ -12,7 +15,7 @@ class UserAvatar extends StatelessWidget {
   final double radius;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: profilePic.isEmpty
@@ -26,7 +29,7 @@ class UserAvatar extends StatelessWidget {
             )
           : CircleAvatar(
               radius: radius,
-              backgroundImage: NetworkImage(profilePic),
+              backgroundImage: CachedNetworkImageProvider(ref.read(storageApiProvider).getUserPicsUrl(profilePic)),
             ),
     );
   }

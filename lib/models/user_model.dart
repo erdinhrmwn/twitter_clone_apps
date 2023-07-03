@@ -15,6 +15,8 @@ class UserModel with _$UserModel {
     @Default(false) bool isTwitterBlue,
     @Default(<String>[]) List<String> followers,
     @Default(<String>[]) List<String> following,
+    @JsonKey(name: "\$createdAt", includeToJson: false) DateTime? createdAt,
+    @JsonKey(name: "\$updatedAt", includeToJson: false) DateTime? updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);

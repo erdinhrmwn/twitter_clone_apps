@@ -7,7 +7,9 @@ class AppwriteConstants {
   // Collections
   static const usersCollectionId = '649aacdebf065dd41093';
   static const tweetsCollectionId = '649ab2f3e5531d5d8593';
+  static const notificationsCollectionId = '649e668b404b6911546f';
 
   // Buckets
-  static const imagesBucketId = '649bda93e8e210ad21b9';
+  static const tweetImagesBucketId = '649bda93e8e210ad21b9';
+  static const userPicsBucketId = '649e512548e3aa33b6c5';
 }

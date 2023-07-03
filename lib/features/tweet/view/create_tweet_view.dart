@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:twitter_clone_apps/common/common.dart';
-import 'package:twitter_clone_apps/core/providers/media_manager_provider.dart';
 import 'package:twitter_clone_apps/core/theme/theme.dart';
 import 'package:twitter_clone_apps/core/types/types.dart';
+import 'package:twitter_clone_apps/core/utils/image_picker.dart';
 import 'package:twitter_clone_apps/core/utils/my_extensions.dart';
 import 'package:twitter_clone_apps/core/utils/snackbar.dart';
 import 'package:twitter_clone_apps/features/auth/controller/auth_controller.dart';
 import 'package:twitter_clone_apps/features/tweet/controller/tweet_controller.dart';
+import 'package:twitter_clone_apps/features/tweet/widgets/user_avatar.dart';
 
 class CreateTweetScreen extends HookConsumerWidget {
   const CreateTweetScreen({super.key});
@@ -23,10 +25,10 @@ class CreateTweetScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userDetail = ref.watch(currentUserDetailProvider);
     final tweetController = ref.read(tweetControllerProvider.notifier);
-    final mediaManager = ref.watch(mediaManagerProvider);
 
     final textController = useTextEditingController();
     final isLoading = useState(false);
+    final tweetImages = useState<List<XFile>>([]);
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +45,7 @@ class CreateTweetScreen extends HookConsumerWidget {
 
               final result = await tweetController.createTweet(
                 text: textController.text,
-                images: mediaManager,
+                images: tweetImages.value,
               );
 
               result.fold((failure) {
@@ -70,13 +72,7 @@ class CreateTweetScreen extends HookConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      child: user.profilePic.isEmpty
-                          ? const CircleAvatar(
-                              child: HeroIcon(HeroIcons.user, size: 24, style: HeroIconStyle.solid),
-                            )
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(user.profilePic),
-                            ),
+                      child: UserAvatar(profilePic: user.profilePic, radius: 20),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -95,9 +91,9 @@ class CreateTweetScreen extends HookConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                if (mediaManager.isNotEmpty)
+                if (tweetImages.value.isNotEmpty)
                   CarouselSlider.builder(
-                    itemCount: mediaManager.length,
+                    itemCount: tweetImages.value.length,
                     itemBuilder: (context, index, realIndex) {
                       return Container(
                         width: double.infinity,
@@ -105,7 +101,7 @@ class CreateTweetScreen extends HookConsumerWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           image: DecorationImage(
-                            image: FileImage(File(mediaManager[index].path)),
+                            image: FileImage(File(tweetImages.value[index].path)),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -134,8 +130,8 @@ class CreateTweetScreen extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                onPressed: () {
-                  ref.read(mediaManagerProvider.notifier).handleImagePicker();
+                onPressed: () async {
+                  tweetImages.value = await handleMultiImagePicker();
                 },
                 icon: const HeroIcon(
                   HeroIcons.photo,

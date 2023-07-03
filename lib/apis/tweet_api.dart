@@ -61,8 +61,6 @@ class TweetAPI implements ITweetAPI {
         ],
       );
 
-      print(response.documents.length);
-
       final tweets = response.documents.map((e) => Tweet.fromJson(e.data)).toList();
 
       return right(tweets);
@@ -109,7 +107,29 @@ class TweetAPI implements ITweetAPI {
   }
 
   @override
-  Stream<RealtimeMessage> getLatestTweet() {
+  FutureEither<List<Tweet>> getTweetsByHashtag({required String hashtag}) async {
+    try {
+      final response = await _database.listDocuments(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        queries: [
+          Query.search('hashtags', hashtag),
+          Query.orderDesc('tweetedAt'),
+        ],
+      );
+
+      final tweets = response.documents.map((e) => Tweet.fromJson(e.data)).toList();
+
+      return right(tweets);
+    } on AppwriteException catch (error, stackTrace) {
+      return left(Failure(error.message.toString(), stackTrace));
+    } catch (error, stackTrace) {
+      return left(Failure(error.toString(), stackTrace));
+    }
+  }
+
+  @override
+  Stream<RealtimeMessage> streamLatestTweet() {
     return _realtime.subscribe([
       'databases.$databaseId.collections.$collectionId.documents',
     ]).stream;
@@ -154,14 +174,38 @@ class TweetAPI implements ITweetAPI {
       return left(Failure(error.toString(), stackTrace));
     }
   }
+
+  @override
+  FutureEither<List<Tweet>> getTweetsByUserId({required String uid}) async {
+    try {
+      final response = await _database.listDocuments(
+        databaseId: databaseId,
+        collectionId: collectionId,
+        queries: [
+          Query.equal('uid', uid),
+          Query.orderDesc('tweetedAt'),
+        ],
+      );
+
+      final tweets = response.documents.map((e) => Tweet.fromJson(e.data)).toList();
+
+      return right(tweets);
+    } on AppwriteException catch (error, stackTrace) {
+      return left(Failure(error.message.toString(), stackTrace));
+    } catch (error, stackTrace) {
+      return left(Failure(error.toString(), stackTrace));
+    }
+  }
 }
 
 abstract class ITweetAPI {
   FutureEither<Document> createTweet({required Tweet tweet});
   FutureEither<List<Tweet>> getTweets();
   Future<Tweet> getTweetById({required String tweetId});
+  FutureEither<List<Tweet>> getTweetsByUserId({required String uid});
   FutureEither<List<Tweet>> getReplyTweets({required String tweetId});
-  Stream<RealtimeMessage> getLatestTweet();
+  FutureEither<List<Tweet>> getTweetsByHashtag({required String hashtag});
   FutureEither<Document> likeTweet({required Tweet tweet});
   FutureEither<Document> updateShareCount({required Tweet tweet});
+  Stream<RealtimeMessage> streamLatestTweet();
 }

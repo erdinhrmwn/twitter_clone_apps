@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:twitter_clone_apps/core/theme/theme.dart';
-import 'package:twitter_clone_apps/core/utils/my_extensions.dart';
 
 class TweetIconButton extends StatelessWidget {
   final IconData icon;
   final num? text;
+  final Color color;
   final VoidCallback onTap;
   const TweetIconButton({
     Key? key,
     required this.icon,
     required this.text,
     required this.onTap,
+    this.color = Palette.greyColor,
   }) : super(key: key);
 
   @override
@@ -21,7 +22,7 @@ class TweetIconButton extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: Palette.greyColor,
+            color: color,
             size: 20,
           ),
           if (text != null)
@@ -30,7 +31,7 @@ class TweetIconButton extends StatelessWidget {
               margin: const EdgeInsets.all(6),
               child: Text(
                 text.toString(),
-                style: AppTextStyles.bodySm.grey,
+                style: AppTextStyles.bodySm.copyWith(color: color),
               ),
             ),
         ],

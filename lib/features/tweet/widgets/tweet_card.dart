@@ -18,6 +18,8 @@ import 'package:twitter_clone_apps/features/tweet/widgets/replying_detail.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/retweet_detail.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/tweet_icon_button.dart';
 import 'package:twitter_clone_apps/features/tweet/widgets/user_avatar.dart';
+import 'package:twitter_clone_apps/features/user/view/user_profile_view.dart';
+import 'package:twitter_clone_apps/generated/assets.gen.dart';
 import 'package:twitter_clone_apps/models/tweet_model.dart';
 
 class TweetCard extends HookConsumerWidget {
@@ -41,7 +43,7 @@ class TweetCard extends HookConsumerWidget {
       }
 
       return null;
-    }, [tweet]);
+    }, [tweet, currentUser]);
 
     return currentUser == null
         ? const SizedBox(height: 100, child: AppLoader())
@@ -50,11 +52,7 @@ class TweetCard extends HookConsumerWidget {
               margin: const EdgeInsets.symmetric(vertical: 4),
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Palette.greyColor.withOpacity(.3),
-                  ),
-                ),
+                border: Border(bottom: BorderSide(color: Palette.greyColor.withOpacity(.3))),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -64,7 +62,10 @@ class TweetCard extends HookConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      UserAvatar(profilePic: user.profilePic),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(UserProfileView.route(user)),
+                        child: UserAvatar(profilePic: user.profilePic),
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -79,16 +80,29 @@ class TweetCard extends HookConsumerWidget {
                                     style: AppTextStyles.body.bold.ellipsis,
                                   ),
                                 ),
-                                Flexible(
-                                  child: Text(
-                                    " @${user.uid}",
-                                    style: AppTextStyles.body.grey.ellipsis,
+                                if (user.isTwitterBlue)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 3),
+                                    child: Assets.icons.icVerified.svg(
+                                      width: 14,
+                                      height: 14,
+                                      colorFilter: const ColorFilter.mode(
+                                        Palette.blueColor,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
                                   ),
+                                Text(
+                                  " @${user.uid}",
+                                  style: AppTextStyles.body.grey.ellipsis,
                                 ),
                                 const SimpleDot(),
-                                Text(
-                                  FormatHelper.formatDiffForHumans(tweet.tweetedAt),
-                                  style: AppTextStyles.body.grey,
+                                SizedBox(
+                                  width: 50,
+                                  child: Text(
+                                    FormatHelper.formatDiffForHumans(tweet.tweetedAt),
+                                    style: AppTextStyles.body.grey,
+                                  ),
                                 ),
                               ],
                             ),
@@ -110,8 +124,11 @@ class TweetCard extends HookConsumerWidget {
                                   TweetIconButton(
                                       icon: FontAwesomeIcons.retweet,
                                       text: tweet.shareCount,
+                                      color: isRetweeted.value ? Palette.greenColor : Palette.greyColor,
                                       onTap: () {
-                                        tweetController.retweet(tweet: tweet);
+                                        if (!isRetweeted.value) {
+                                          tweetController.retweet(tweet: tweet);
+                                        }
                                       }),
                                   LikeButton(
                                     size: 25,

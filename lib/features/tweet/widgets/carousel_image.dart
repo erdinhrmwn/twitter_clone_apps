@@ -30,7 +30,7 @@ class CarouselImage extends HookConsumerWidget {
                 ),
                 margin: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                 child: CachedNetworkImage(
-                  imageUrl: storageApi.getPreviewUrl(imageId),
+                  imageUrl: storageApi.getUserPicsUrl(imageId),
                   fit: BoxFit.cover,
                   placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(),

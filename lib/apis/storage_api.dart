@@ -15,17 +15,33 @@ StorageAPI storageApi(StorageApiRef ref) {
 
 class StorageAPI {
   final String endpoint = AppwriteConstants.endpoint;
-  final String imagesBucketId = AppwriteConstants.imagesBucketId;
+  final String projectId = AppwriteConstants.projectId;
+  final String userPicsBucketId = AppwriteConstants.userPicsBucketId;
+  final String tweetImagesBucketId = AppwriteConstants.tweetImagesBucketId;
 
   final Storage _storage;
 
   StorageAPI({required Storage storage}) : _storage = storage;
 
-  Future<List<String>> uploadImages(List<XFile> images) {
+  Future<String> uploadUserPics(XFile image) async {
+    final result = await _storage.createFile(
+      bucketId: userPicsBucketId,
+      fileId: ID.unique(),
+      file: InputFile.fromPath(
+        path: image.path,
+        filename: image.name,
+        contentType: image.mimeType,
+      ),
+    );
+
+    return result.$id;
+  }
+
+  Future<List<String>> uploadTweetImages(List<XFile> images) {
     return Future.wait(
       images.map((image) async {
         final result = await _storage.createFile(
-          bucketId: imagesBucketId,
+          bucketId: tweetImagesBucketId,
           fileId: ID.unique(),
           file: InputFile.fromPath(
             path: image.path,
@@ -39,7 +55,11 @@ class StorageAPI {
     );
   }
 
-  String getPreviewUrl(String imageId) {
-    return '$endpoint/storage/buckets/$imagesBucketId/files/$imageId/view?project=649a5978d37d1b7167ce';
+  String getUserPicsUrl(String imageId) {
+    return '$endpoint/storage/buckets/$userPicsBucketId/files/$imageId/view?project=$projectId';
+  }
+
+  String getTweetPreviewUrl(String imageId) {
+    return '$endpoint/storage/buckets/$tweetImagesBucketId/files/$imageId/view?project=$projectId';
   }
 }
